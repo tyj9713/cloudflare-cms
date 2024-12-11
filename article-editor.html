@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新建/编辑文章</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>${id ? '编辑' : '新建'}文章</h1>
+        <form id="articleForm">
+            <input type="hidden" id="id" name="id" value="${id || ''}">
+            <div class="mb-3">
+                <label for="title" class="form-label">标题:</label>
+                <input type="text" class="form-control" id="title" name="title" value="${articleData.title || ''}" required>
+            </div>
+            <div class="mb-3">
+                <label for="summary" class="form-label">摘要:</label>
+                <textarea id="summary" name="summary" rows="4" class="form-control" required>${articleData.summary || ''}</textarea>
+            </div>
+            <div class="mb-3">
+                <label for="content" class="form-label">内容:</label>
+                <textarea id="content" name="content" rows="10" class="form-control" required>${articleData.content || ''}</textarea>
+            </div>
+            <button type="button" onclick="saveArticle()" class="btn btn-primary">保存并预览</button>
+        </form>
+    </div>
+    <script>
+        async function saveArticle() {
+            const form = document.getElementById('articleForm');
+            const formData = new FormData(form);
+            const response = await fetch('/article-editor', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            window.open('/view?id=' + data.id, '_blank');
+        }
+    </script>
+</body>
+</html>

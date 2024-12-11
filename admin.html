@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后台管理</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
+        .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 600px; }
+        .closebtn { color: #aaa; float: right; font-size: 28px; font-weight: bold; }
+        .closebtn:hover, .closebtn:focus { color: black; text-decoration: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">后台管理</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/editor">新建 HTML 页面</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/article-editor">新建文章</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h2>HTML 页面管理</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>操作</th>
+                    <th colspan="2">管理</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${htmlRows}
+            </tbody>
+        </table>
+
+        <h2>文章管理</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>标题</th>
+                    <th>操作</th>
+                    <th colspan="2">管理</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${articleRows}
+            </tbody>
+        </table>
+
+        <h2>文件管理</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>文件名</th>
+                    <th>MIME 类型</th>
+                    <th>操作</th>
+                    <th>管理</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${fileRows}
+            </tbody>
+        </table>
+
+        <h2>设置首页</h2>
+        <form id="setHomeForm">
+            <div class="mb-3">
+                <label for="homeId" class="form-label">选择首页ID:</label>
+                <select id="homeId" name="homeId" class="form-select">
+                    <option value="custom-html">自定义 HTML 页面</option>
+                    <option value="article-list">文章列表</option>
+                    <option value="file-list">文件列表</option>
+                    ${htmlPages.map(key => `<option value="${key.name}">${key.name.replace(/^(article|html):/, '')}</option>`).join('')}
+                </select>
+            </div>
+            <button type="button" onclick="setHomepage()" class="btn btn-success">设置为首页</button>
+        </form>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+    <script>
+        async function remove(id) {
+            if (confirm('确定要删除吗？')) {
+                const response = await fetch('/admin?id=' + id, { 
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+                if (response.ok) {
+                    location.reload();
+                }
+            }
+        }
+
+        async function setHomepage() {
+            const form = document.getElementById('setHomeForm');
+            const formData = new FormData(form);
+            const response = await fetch('/admin', {
+                method: 'PATCH',
+                body: formData,
+                credentials: 'include'
+            });
+            if (response.ok) {
+                alert('首页设置成功');
+            }
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
+
