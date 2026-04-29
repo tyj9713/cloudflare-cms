@@ -82,6 +82,49 @@
                 </div>
             </aside>
         </section>
+
+        <section class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
+            <form id="siteSettingsForm" class="space-y-6 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div>
+                    <h2 class="text-lg font-semibold">站点设置</h2>
+                    <p class="mt-2 text-sm leading-6 text-slate-500">管理站点名称、品牌资源、SEO 默认信息、页脚、主题、导航、首页模块和 404 页面。</p>
+                </div>
+                <div class="grid gap-4 md:grid-cols-2">
+                    <label class="grid gap-2 text-sm font-medium text-slate-700">站点名称<input name="siteName" value="{{siteName}}" class="h-11 rounded-xl border border-slate-200 px-3 font-normal outline-none focus:border-slate-400"></label>
+                    <label class="grid gap-2 text-sm font-medium text-slate-700">主题模板<select name="theme" class="h-11 rounded-xl border border-slate-200 px-3 font-normal outline-none focus:border-slate-400"><option value="default" {{themeDefaultSelected}}>默认</option><option value="minimal" {{themeMinimalSelected}}>极简</option><option value="dark" {{themeDarkSelected}}>深色</option></select></label>
+                    <label class="grid gap-2 text-sm font-medium text-slate-700">Logo URL<input name="logoUrl" value="{{logoUrl}}" class="h-11 rounded-xl border border-slate-200 px-3 font-normal outline-none focus:border-slate-400"></label>
+                    <label class="grid gap-2 text-sm font-medium text-slate-700">favicon URL<input name="faviconUrl" value="{{faviconUrl}}" class="h-11 rounded-xl border border-slate-200 px-3 font-normal outline-none focus:border-slate-400"></label>
+                    <label class="grid gap-2 text-sm font-medium text-slate-700">SEO 标题<input name="seoTitle" value="{{seoTitle}}" class="h-11 rounded-xl border border-slate-200 px-3 font-normal outline-none focus:border-slate-400"></label>
+                    <label class="grid gap-2 text-sm font-medium text-slate-700">SEO 关键词<input name="seoKeywords" value="{{seoKeywords}}" class="h-11 rounded-xl border border-slate-200 px-3 font-normal outline-none focus:border-slate-400"></label>
+                    <label class="md:col-span-2 grid gap-2 text-sm font-medium text-slate-700">SEO 描述<textarea name="seoDescription" rows="3" class="rounded-xl border border-slate-200 p-3 font-normal outline-none focus:border-slate-400">{{seoDescription}}</textarea></label>
+                    <label class="grid gap-2 text-sm font-medium text-slate-700">页脚信息<input name="footerText" value="{{footerText}}" class="h-11 rounded-xl border border-slate-200 px-3 font-normal outline-none focus:border-slate-400"></label>
+                    <label class="grid gap-2 text-sm font-medium text-slate-700">备案信息<input name="icpText" value="{{icpText}}" class="h-11 rounded-xl border border-slate-200 px-3 font-normal outline-none focus:border-slate-400"></label>
+                </div>
+                <div class="grid gap-4 md:grid-cols-2">
+                    <label class="grid gap-2 text-sm font-medium text-slate-700">导航菜单<span class="text-xs font-normal text-slate-400">每行：名称|链接</span><textarea name="navigationText" rows="7" class="rounded-xl border border-slate-200 p-3 font-mono text-sm font-normal outline-none focus:border-slate-400">{{navigationText}}</textarea></label>
+                    <label class="grid gap-2 text-sm font-medium text-slate-700">首页模块<span class="text-xs font-normal text-slate-400">每行：类型|标题|目标，类型支持 hero/articles/pages/files/html</span><textarea name="homeModulesText" rows="7" class="rounded-xl border border-slate-200 p-3 font-mono text-sm font-normal outline-none focus:border-slate-400">{{homeModulesText}}</textarea></label>
+                    <label class="grid gap-2 text-sm font-medium text-slate-700">robots.txt<textarea name="robotsTxt" rows="5" class="rounded-xl border border-slate-200 p-3 font-mono text-sm font-normal outline-none focus:border-slate-400">{{robotsTxt}}</textarea></label>
+                    <label class="grid gap-2 text-sm font-medium text-slate-700">自定义 404 HTML<textarea name="custom404Html" rows="5" class="rounded-xl border border-slate-200 p-3 font-mono text-sm font-normal outline-none focus:border-slate-400">{{custom404Html}}</textarea></label>
+                </div>
+                <label class="inline-flex items-center gap-2 text-sm text-slate-700"><input type="checkbox" name="analyticsEnabled" value="true" {{analyticsEnabledChecked}} class="h-4 w-4 rounded border-slate-300">启用页面访问统计</label>
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <button type="button" onclick="saveSiteSettings()" class="inline-flex h-11 items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-medium text-white shadow-sm">保存站点设置</button>
+                    <p id="siteSettingsStatus" class="min-h-6 text-sm text-slate-500"></p>
+                </div>
+            </form>
+
+            <section class="h-fit overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                <div class="border-b border-slate-100 px-5 py-4">
+                    <h2 class="text-lg font-semibold">页面访问统计</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full min-w-[420px] text-left text-sm">
+                        <thead class="bg-slate-50 text-xs font-medium uppercase text-slate-500"><tr><th class="px-4 py-3">路径</th><th class="px-4 py-3">访问量</th><th class="px-4 py-3">最近访问</th></tr></thead>
+                        <tbody>{{statsRows}}</tbody>
+                    </table>
+                </div>
+            </section>
+        </section>
     </div>
 
     <script>
@@ -134,6 +177,14 @@
             status.textContent = '正在保存...';
             const response = await fetch('/admin', { method: 'PATCH', body: new FormData(document.getElementById('setHomeForm')), credentials: 'include' });
             status.textContent = response.ok ? '首页设置成功。' : '首页设置失败。';
+        }
+
+        async function saveSiteSettings() {
+            const status = document.getElementById('siteSettingsStatus');
+            status.textContent = '正在保存...';
+            const response = await fetch('/admin?action=site-settings', { method: 'POST', body: new FormData(document.getElementById('siteSettingsForm')), credentials: 'include' });
+            const data = await response.json().catch(() => ({}));
+            status.textContent = response.ok ? '站点设置已保存。' : (data.error || '保存失败。');
         }
 
         async function updateTemplates() {
