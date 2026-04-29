@@ -26,9 +26,22 @@
         <section class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
             <main class="space-y-6">
                 <section class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-                    <div class="flex flex-col gap-3 border-b border-slate-100 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
-                        <h2 class="text-lg font-semibold">全部内容</h2>
-                        <form method="GET" action="/admin" class="grid gap-3 sm:grid-cols-[minmax(0,1fr)_140px_140px_auto] lg:w-[720px]">
+                    <div class="flex flex-col gap-4 border-b border-slate-100 px-5 py-4">
+                        <div class="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
+                            <div>
+                                <h2 class="text-lg font-semibold">全部内容</h2>
+                                <p class="mt-1 text-sm text-slate-500">{{contentSummary}}</p>
+                            </div>
+                            <div class="grid gap-3 sm:grid-cols-[160px_auto]">
+                                <select id="bulkAction" class="h-10 rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400">
+                                    <option value="publish">批量发布</option>
+                                    <option value="archive">批量下线</option>
+                                    <option value="delete">批量删除</option>
+                                </select>
+                                <button type="button" onclick="bulkApply()" class="h-10 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white">执行</button>
+                            </div>
+                        </div>
+                        <form method="GET" action="/admin" class="grid gap-3 md:grid-cols-[minmax(0,1fr)_140px_140px_160px_auto]">
                             <input id="contentSearch" name="q" value="{{contentSearchQuery}}" type="search" placeholder="搜索内容、类型或 ID" class="h-10 rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400">
                             <select name="type" class="h-10 rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400">
                                 <option value="" {{contentTypeAllSelected}}>全部类型</option>
@@ -42,16 +55,13 @@
                                 <option value="published" {{contentStatusPublishedSelected}}>已发布</option>
                                 <option value="archived" {{contentStatusArchivedSelected}}>已下线</option>
                             </select>
+                            <select name="sort" class="h-10 rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400">
+                                <option value="updated_desc" {{contentSortUpdatedDescSelected}}>更新时间从新到旧</option>
+                                <option value="updated_asc" {{contentSortUpdatedAscSelected}}>更新时间从旧到新</option>
+                                <option value="title_asc" {{contentSortTitleAscSelected}}>标题 A-Z</option>
+                            </select>
                             <button type="submit" class="h-10 rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-900">筛选</button>
                         </form>
-                        <div class="grid gap-3 sm:grid-cols-[160px_auto]">
-                            <select id="bulkAction" class="h-10 rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400">
-                                <option value="publish">批量发布</option>
-                                <option value="archive">批量下线</option>
-                                <option value="delete">批量删除</option>
-                            </select>
-                            <button type="button" onclick="bulkApply()" class="h-10 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white">执行</button>
-                        </div>
                     </div>
                     <form id="contentForm" class="overflow-x-auto">
                         <table class="w-full min-w-[900px] text-left text-sm">
@@ -164,15 +174,16 @@
                 return;
             }
             if (form.get('bulkAction') === 'delete' && !confirm('确定要批量删除选中内容吗？')) return;
-            status.textContent = '正在执行...';
+            const actionText = { publish: '发布', archive: '下线', delete: '删除' }[form.get('bulkAction')] || '处理';
+            status.textContent = '正在' + actionText + '...';
             const response = await fetch('/admin?action=bulk', { method: 'POST', body: form, credentials: 'include' });
             const data = await response.json();
             if (!response.ok) {
                 status.textContent = data.error || '操作失败。';
                 return;
             }
-            status.textContent = '操作完成。';
-            setTimeout(() => location.reload(), 500);
+            status.textContent = '已' + actionText + ' ' + (data.count || form.getAll('ids').length) + ' 项内容。';
+            setTimeout(() => location.reload(), 900);
         }
 
         async function copyLink(url) {
@@ -184,7 +195,8 @@
         async function remove(id) {
             if (!confirm('确定要删除吗？')) return;
             const response = await fetch('/admin?id=' + encodeURIComponent(id), { method: 'DELETE', credentials: 'include' });
-            if (response.ok) location.reload();
+            document.getElementById('contentStatus').textContent = response.ok ? '已删除，正在刷新...' : '删除失败。';
+            if (response.ok) setTimeout(() => location.reload(), 500);
         }
 
         async function setHomepage() {

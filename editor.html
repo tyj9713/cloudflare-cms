@@ -17,8 +17,9 @@
             </div>
             <div class="flex flex-col gap-3 sm:flex-row">
                 <a href="/admin" class="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-medium text-slate-900 shadow-sm">返回后台</a>
-                <button onclick="save(false)" class="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-medium text-slate-900 shadow-sm">保存</button>
-                <button onclick="save(true)" class="inline-flex h-11 items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-medium text-white shadow-sm">保存并预览</button>
+                <a id="previewLink" href="#" target="_blank" class="hidden h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-medium text-slate-900 shadow-sm">打开预览</a>
+                <button id="saveButton" type="button" onclick="save(false)" class="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-medium text-slate-900 shadow-sm">保存</button>
+                <button id="savePreviewButton" type="button" onclick="save(true)" class="inline-flex h-11 items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-medium text-white shadow-sm">保存并预览</button>
             </div>
         </header>
 
@@ -36,6 +37,7 @@
                 <label class="mt-4 block">
                     <span class="mb-2 block text-sm font-medium text-slate-700">slug</span>
                     <input type="text" id="slug" name="slug" value="{{slug}}" class="h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400">
+                    <span id="slugHint" class="mt-1 block text-xs text-slate-400">留空时会根据标题自动生成。</span>
                 </label>
                 <label class="mt-4 block">
                     <span class="mb-2 block text-sm font-medium text-slate-700">状态</span>
@@ -58,7 +60,8 @@
                 </label>
                 <label class="mt-4 block">
                     <span class="mb-2 block text-sm font-medium text-slate-700">页面描述</span>
-                    <textarea name="description" rows="4" class="w-full resize-y rounded-xl border border-slate-200 px-3 py-2 text-sm leading-6 outline-none focus:border-slate-400">{{description}}</textarea>
+                    <textarea id="description" name="description" rows="4" class="w-full resize-y rounded-xl border border-slate-200 px-3 py-2 text-sm leading-6 outline-none focus:border-slate-400">{{description}}</textarea>
+                    <span id="descriptionCount" class="mt-1 block text-xs text-slate-400"></span>
                 </label>
                 <p id="status" class="mt-5 min-h-6 text-sm text-slate-500"></p>
             </aside>
@@ -76,14 +79,42 @@
 
         const title = document.getElementById('title');
         const slug = document.getElementById('slug');
+        const slugHint = document.getElementById('slugHint');
+        const description = document.getElementById('description');
+        const descriptionCount = document.getElementById('descriptionCount');
+        const saveButton = document.getElementById('saveButton');
+        const savePreviewButton = document.getElementById('savePreviewButton');
+        const previewLink = document.getElementById('previewLink');
         let slugTouched = Boolean(slug.value);
         function slugify(value) {
             return value.trim().toLowerCase().replace(/[\s_]+/g, '-').replace(/[^\p{L}\p{N}-]+/gu, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
         }
-        slug.addEventListener('input', () => slugTouched = true);
-        title.addEventListener('input', () => {
-            if (!slugTouched) slug.value = slugify(title.value);
+        function updateSlugHint() {
+            slugHint.textContent = slug.value ? '当前公开路径：/' + slug.value : '留空时会根据标题自动生成。';
+        }
+        function updateDescriptionCount() {
+            descriptionCount.textContent = (description.value.length || 0) + ' / 160，建议 160 字以内。';
+        }
+        function setSaving(isSaving) {
+            saveButton.disabled = isSaving;
+            savePreviewButton.disabled = isSaving;
+            saveButton.classList.toggle('opacity-60', isSaving);
+            savePreviewButton.classList.toggle('opacity-60', isSaving);
+        }
+        slug.addEventListener('input', () => {
+            slugTouched = true;
+            slug.value = slugify(slug.value);
+            updateSlugHint();
         });
+        title.addEventListener('input', () => {
+            if (!slugTouched) {
+                slug.value = slugify(title.value);
+                updateSlugHint();
+            }
+        });
+        description.addEventListener('input', updateDescriptionCount);
+        updateSlugHint();
+        updateDescriptionCount();
 
         async function save(openPreview) {
             const status = document.getElementById('status');
@@ -91,16 +122,27 @@
             const form = new FormData(document.getElementById('pageForm'));
             form.append('htmlCode', editor.getValue());
             form.set('id', pageId);
-            const response = await fetch('/editor', { method: 'POST', body: form, credentials: 'include' });
-            const data = await response.json();
-            if (!response.ok) {
-                status.textContent = data.error || '保存失败。';
-                return;
+            setSaving(true);
+            try {
+                const response = await fetch('/editor', { method: 'POST', body: form, credentials: 'include' });
+                const data = await response.json();
+                if (!response.ok) {
+                    status.textContent = data.error || '保存失败。';
+                    return;
+                }
+                pageId = data.id;
+                document.getElementById('id').value = data.id;
+                const previewUrl = '/view?id=' + encodeURIComponent(data.id);
+                previewLink.href = previewUrl;
+                previewLink.classList.remove('hidden');
+                previewLink.classList.add('inline-flex');
+                status.textContent = '已保存。';
+                if (openPreview) window.open(previewUrl, '_blank');
+            } catch (error) {
+                status.textContent = '网络错误，保存失败。';
+            } finally {
+                setSaving(false);
             }
-            pageId = data.id;
-            document.getElementById('id').value = data.id;
-            status.textContent = '已保存。';
-            if (openPreview) window.open('/view?id=' + encodeURIComponent(data.id), '_blank');
         }
     </script>
 </body>

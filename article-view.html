@@ -8,6 +8,7 @@
     {{faviconLink}}
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
     <style>
         .markdown-content h1,.markdown-content h2,.markdown-content h3 { margin-top: 1.6em; margin-bottom: .65em; font-weight: 650; color: rgb(15 23 42); }
         .markdown-content h1 { font-size: 1.9rem; }
@@ -45,7 +46,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const source = document.getElementById('markdown-source').textContent;
-            document.getElementById('markdown-output').innerHTML = marked.parse(source);
+            document.getElementById('markdown-output').innerHTML = DOMPurify.sanitize(marked.parse(source || ''));
         });
     </script>
 </body>

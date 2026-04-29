@@ -30,6 +30,14 @@
                         <div id="progressBar" class="h-full w-0 rounded-full bg-cyan-600 transition-all duration-200"></div>
                     </div>
                     <p id="uploadStatus" class="mt-3 min-h-6 text-sm text-slate-500"></p>
+                    <div id="uploadResult" class="hidden rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
+                        <div class="font-medium">上传完成</div>
+                        <div class="mt-2 flex flex-col gap-2 sm:flex-row">
+                            <input id="fileUrl" readonly class="h-10 min-w-0 flex-1 rounded-xl border border-emerald-200 bg-white px-3 font-mono text-xs text-slate-700">
+                            <button type="button" onclick="copyUploadedUrl()" class="h-10 rounded-xl bg-emerald-700 px-4 text-sm font-medium text-white">复制链接</button>
+                        </div>
+                        <a id="openFileLink" href="#" target="_blank" class="mt-3 inline-flex text-sm font-medium text-emerald-800 underline underline-offset-4">打开文件</a>
+                    </div>
                 </div>
             </form>
         </section>
@@ -71,8 +79,11 @@
                 try {
                     const result = JSON.parse(xhr.responseText || '{}');
                     if (xhr.status === 201) {
-                        status.textContent = '上传成功，正在打开文件列表。';
-                        window.location.href = '/files';
+                        const url = result.url || new URL('/files?id=' + encodeURIComponent(result.id), location.origin).href;
+                        document.getElementById('fileUrl').value = url;
+                        document.getElementById('openFileLink').href = url;
+                        document.getElementById('uploadResult').classList.remove('hidden');
+                        status.textContent = '上传成功，可复制链接插入文章或页面。';
                     } else {
                         status.textContent = result.error || '文件上传失败。';
                     }
@@ -86,6 +97,12 @@
             };
 
             xhr.send(formData);
+        }
+
+        async function copyUploadedUrl() {
+            const input = document.getElementById('fileUrl');
+            await navigator.clipboard.writeText(input.value);
+            document.getElementById('uploadStatus').textContent = '文件链接已复制。';
         }
     </script>
 </body>
