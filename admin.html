@@ -6,118 +6,77 @@
     <title>后台管理 - Netcut CMS</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="min-h-screen bg-[radial-gradient(circle_at_10%_0%,#dff7f2,transparent_28%),radial-gradient(circle_at_88%_8%,#e6f4ff,transparent_26%),linear-gradient(135deg,#f8fafc,#f3f7f5_52%,#f8fbff)] text-slate-950 antialiased">
-    <div class="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-5 sm:px-8 sm:py-8">
-        <header class="rounded-[2rem] border border-white/70 bg-white/70 p-5 shadow-[0_20px_70px_rgba(15,23,42,0.10)] backdrop-blur-xl">
+<body class="min-h-screen bg-slate-50 text-slate-950 antialiased">
+    <div class="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-5 sm:px-8">
+        <header class="border-b border-slate-200 pb-5">
             <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                 <div>
                     <p class="text-sm font-medium text-emerald-700">Netcut CMS</p>
-                    <h1 class="mt-2 text-3xl font-semibold sm:text-4xl">后台管理</h1>
-                    <p class="mt-3 max-w-2xl text-sm leading-6 text-slate-500">管理页面、文章、文件与首页入口。当前首页：<span class="font-medium text-slate-800">{{currentHome}}</span></p>
+                    <h1 class="mt-2 text-3xl font-semibold sm:text-4xl">内容中心</h1>
+                    <p class="mt-3 max-w-2xl text-sm leading-6 text-slate-500">统一管理页面、文章和文件。当前首页：<span class="font-medium text-slate-800">{{currentHome}}</span></p>
                 </div>
-                <nav class="grid gap-3 sm:grid-cols-3 lg:w-auto">
-                    <a href="/editor" class="inline-flex h-11 items-center justify-center rounded-2xl bg-slate-950 px-5 text-sm font-medium text-white shadow-lg shadow-slate-900/15 transition hover:-translate-y-0.5 hover:bg-slate-800">新建页面</a>
-                    <a href="/article-editor" class="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white/80 px-5 text-sm font-medium text-slate-900 shadow-sm transition hover:bg-white">新建文章</a>
-                    <a href="/upload" class="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white/80 px-5 text-sm font-medium text-slate-900 shadow-sm transition hover:bg-white">上传文件</a>
+                <nav class="grid gap-3 sm:grid-cols-3">
+                    <a href="/editor" class="inline-flex h-11 items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-medium text-white shadow-sm">新建页面</a>
+                    <a href="/article-editor" class="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-medium text-slate-900 shadow-sm">新建文章</a>
+                    <a href="/upload" class="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-medium text-slate-900 shadow-sm">上传文件</a>
                 </nav>
             </div>
         </header>
 
-        <section class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
-            <div class="space-y-6">
-                <section class="overflow-hidden rounded-[2rem] border border-white/70 bg-white/76 shadow-[0_20px_70px_rgba(15,23,42,0.10)] backdrop-blur-xl">
-                    <div class="border-b border-slate-100 px-5 py-4">
-                        <h2 class="text-lg font-semibold">HTML 页面</h2>
+        <section class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+            <main class="space-y-6">
+                <section class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                    <div class="flex flex-col gap-3 border-b border-slate-100 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
+                        <h2 class="text-lg font-semibold">全部内容</h2>
+                        <div class="grid gap-3 sm:grid-cols-[minmax(0,1fr)_160px_auto] lg:w-[640px]">
+                            <input id="contentSearch" type="search" placeholder="搜索内容、类型或 ID" class="h-10 rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400">
+                            <select id="bulkAction" class="h-10 rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400">
+                                <option value="publish">批量发布</option>
+                                <option value="archive">批量下线</option>
+                                <option value="delete">批量删除</option>
+                            </select>
+                            <button type="button" onclick="bulkApply()" class="h-10 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white">执行</button>
+                        </div>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full min-w-[640px] text-left text-sm">
-                            <thead class="bg-slate-50/80 text-xs font-medium uppercase text-slate-500">
+                    <form id="contentForm" class="overflow-x-auto">
+                        <table class="w-full min-w-[900px] text-left text-sm">
+                            <thead class="bg-slate-50 text-xs font-medium uppercase text-slate-500">
                                 <tr>
-                                    <th class="px-4 py-3">ID</th>
-                                    <th class="px-4 py-3">查看</th>
-                                    <th class="px-4 py-3">编辑</th>
-                                    <th class="px-4 py-3 text-right">管理</th>
-                                </tr>
-                            </thead>
-                            <tbody>{{htmlRows}}</tbody>
-                        </table>
-                    </div>
-                </section>
-
-                <section class="overflow-hidden rounded-[2rem] border border-white/70 bg-white/76 shadow-[0_20px_70px_rgba(15,23,42,0.10)] backdrop-blur-xl">
-                    <div class="border-b border-slate-100 px-5 py-4">
-                        <h2 class="text-lg font-semibold">文章</h2>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full min-w-[640px] text-left text-sm">
-                            <thead class="bg-slate-50/80 text-xs font-medium uppercase text-slate-500">
-                                <tr>
+                                    <th class="px-4 py-3 w-10"><input type="checkbox" onclick="toggleAll(this)" class="h-4 w-4 rounded border-slate-300"></th>
+                                    <th class="px-4 py-3">类型</th>
                                     <th class="px-4 py-3">标题</th>
-                                    <th class="px-4 py-3">查看</th>
-                                    <th class="px-4 py-3">编辑</th>
-                                    <th class="px-4 py-3 text-right">管理</th>
+                                    <th class="px-4 py-3">状态</th>
+                                    <th class="px-4 py-3">更新时间</th>
+                                    <th class="px-4 py-3">链接</th>
+                                    <th class="px-4 py-3 text-right">操作</th>
                                 </tr>
                             </thead>
-                            <tbody>{{articleRows}}</tbody>
+                            <tbody>{{contentRows}}</tbody>
                         </table>
-                    </div>
+                    </form>
+                    <p id="contentStatus" class="min-h-6 px-5 py-3 text-sm text-slate-500"></p>
                 </section>
+            </main>
 
-                <section class="overflow-hidden rounded-[2rem] border border-white/70 bg-white/76 shadow-[0_20px_70px_rgba(15,23,42,0.10)] backdrop-blur-xl">
-                    <div class="border-b border-slate-100 px-5 py-4">
-                        <h2 class="text-lg font-semibold">文件</h2>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full min-w-[720px] text-left text-sm">
-                            <thead class="bg-slate-50/80 text-xs font-medium uppercase text-slate-500">
-                                <tr>
-                                    <th class="px-4 py-3">文件名</th>
-                                    <th class="px-4 py-3">MIME 类型</th>
-                                    <th class="px-4 py-3">下载</th>
-                                    <th class="px-4 py-3 text-right">管理</th>
-                                </tr>
-                            </thead>
-                            <tbody>{{fileRows}}</tbody>
-                        </table>
-                    </div>
-                </section>
-            </div>
-
-            <aside class="h-fit rounded-[2rem] border border-white/70 bg-white/76 p-5 shadow-[0_20px_70px_rgba(15,23,42,0.10)] backdrop-blur-xl">
+            <aside class="h-fit rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
                 <div>
                     <h2 class="text-lg font-semibold">版本更新</h2>
-                    <p class="mt-2 text-sm leading-6 text-slate-500">系统模板由 GitHub 版本库驱动，检测到新版本后可手动同步。</p>
-                    <div class="mt-5 grid gap-3 rounded-3xl border border-slate-200/80 bg-white/65 p-4">
-                        <div class="flex items-center justify-between gap-4 text-sm">
-                            <span class="text-slate-500">当前版本</span>
-                            <span id="localVersion" class="font-medium text-slate-900">{{localVersion}}</span>
-                        </div>
-                        <div class="flex items-center justify-between gap-4 text-sm">
-                            <span class="text-slate-500">远程版本</span>
-                            <span id="remoteVersion" class="font-medium text-slate-900">{{remoteVersion}}</span>
-                        </div>
-                        <div class="flex items-center justify-between gap-4 text-sm">
-                            <span class="text-slate-500">状态</span>
-                            <span id="versionStatus" class="font-medium text-slate-900">{{versionStatus}}</span>
-                        </div>
+                    <div class="mt-5 grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <div class="flex items-center justify-between gap-4 text-sm"><span class="text-slate-500">当前版本</span><span id="localVersion" class="font-medium text-slate-900">{{localVersion}}</span></div>
+                        <div class="flex items-center justify-between gap-4 text-sm"><span class="text-slate-500">远程版本</span><span id="remoteVersion" class="font-medium text-slate-900">{{remoteVersion}}</span></div>
+                        <div class="flex items-center justify-between gap-4 text-sm"><span class="text-slate-500">状态</span><span id="versionStatus" class="font-medium text-slate-900">{{versionStatus}}</span></div>
                     </div>
                     <div id="updateNotice" class="mt-4">{{updateNotice}}</div>
-                    <button type="button" onclick="updateTemplates()" class="mt-4 inline-flex h-11 w-full items-center justify-center rounded-2xl bg-slate-950 px-5 text-sm font-medium text-white shadow-lg shadow-slate-900/15 transition hover:-translate-y-0.5 hover:bg-slate-800">{{updateButtonLabel}}</button>
-                    <button type="button" onclick="refreshTemplates()" class="mt-3 inline-flex h-11 w-full items-center justify-center rounded-2xl border border-slate-200 bg-white/80 px-5 text-sm font-medium text-slate-900 shadow-sm transition hover:bg-white">手动重新拉取模板</button>
+                    <button type="button" onclick="updateTemplates()" class="mt-4 inline-flex h-11 w-full items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-medium text-white shadow-sm">{{updateButtonLabel}}</button>
+                    <button type="button" onclick="refreshTemplates()" class="mt-3 inline-flex h-11 w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-medium text-slate-900 shadow-sm">手动重新拉取模板</button>
                     <p id="updateStatus" class="mt-3 min-h-6 text-sm text-slate-500"></p>
                 </div>
 
                 <div class="mt-8 border-t border-slate-200 pt-6">
                     <h2 class="text-lg font-semibold">首页设置</h2>
-                    <p class="mt-2 text-sm leading-6 text-slate-500">选择一个公开入口作为站点首页。</p>
                     <form id="setHomeForm" class="mt-5 space-y-4">
-                        <label class="block">
-                            <span class="mb-2 block text-sm font-medium text-slate-700">首页</span>
-                            <select id="homeId" name="homeId" class="h-12 w-full rounded-2xl border border-slate-200 bg-white/85 px-4 text-sm text-slate-950 outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-200">
-                                {{homeOptions}}
-                            </select>
-                        </label>
-                        <button type="button" onclick="setHomepage()" class="inline-flex h-11 w-full items-center justify-center rounded-2xl border border-slate-200 bg-white/80 px-5 text-sm font-medium text-slate-900 shadow-sm transition hover:bg-white">保存首页</button>
+                        <select id="homeId" name="homeId" class="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-slate-400">{{homeOptions}}</select>
+                        <button type="button" onclick="setHomepage()" class="inline-flex h-11 w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-medium text-slate-900 shadow-sm">保存首页</button>
                         <p id="homeStatus" class="min-h-6 text-sm text-slate-500"></p>
                     </form>
                 </div>
@@ -126,73 +85,79 @@
     </div>
 
     <script>
+        const contentSearch = document.getElementById('contentSearch');
+        contentSearch.addEventListener('input', () => {
+            const q = contentSearch.value.trim().toLowerCase();
+            document.querySelectorAll('.content-row').forEach(row => {
+                row.style.display = row.dataset.search.includes(q) ? '' : 'none';
+            });
+        });
+
+        function toggleAll(source) {
+            document.querySelectorAll('#contentForm input[name="ids"]').forEach(input => input.checked = source.checked);
+        }
+
+        async function bulkApply() {
+            const status = document.getElementById('contentStatus');
+            const form = new FormData(document.getElementById('contentForm'));
+            form.append('bulkAction', document.getElementById('bulkAction').value);
+            if (!form.getAll('ids').length) {
+                status.textContent = '请选择内容。';
+                return;
+            }
+            if (form.get('bulkAction') === 'delete' && !confirm('确定要批量删除选中内容吗？')) return;
+            status.textContent = '正在执行...';
+            const response = await fetch('/admin?action=bulk', { method: 'POST', body: form, credentials: 'include' });
+            const data = await response.json();
+            if (!response.ok) {
+                status.textContent = data.error || '操作失败。';
+                return;
+            }
+            status.textContent = '操作完成。';
+            setTimeout(() => location.reload(), 500);
+        }
+
+        async function copyLink(url) {
+            const absolute = new URL(url, location.origin).href;
+            await navigator.clipboard.writeText(absolute);
+            document.getElementById('contentStatus').textContent = '链接已复制。';
+        }
+
         async function remove(id) {
             if (!confirm('确定要删除吗？')) return;
-            const status = document.getElementById('homeStatus');
-            const response = await fetch('/admin?id=' + encodeURIComponent(id), {
-                method: 'DELETE',
-                credentials: 'include'
-            });
-            if (response.ok) {
-                location.reload();
-            } else {
-                status.textContent = '删除失败，请稍后重试。';
-            }
+            const response = await fetch('/admin?id=' + encodeURIComponent(id), { method: 'DELETE', credentials: 'include' });
+            if (response.ok) location.reload();
         }
 
         async function setHomepage() {
             const status = document.getElementById('homeStatus');
             status.textContent = '正在保存...';
-            const form = document.getElementById('setHomeForm');
-            const formData = new FormData(form);
-            const response = await fetch('/admin', {
-                method: 'PATCH',
-                body: formData,
-                credentials: 'include'
-            });
+            const response = await fetch('/admin', { method: 'PATCH', body: new FormData(document.getElementById('setHomeForm')), credentials: 'include' });
             status.textContent = response.ok ? '首页设置成功。' : '首页设置失败。';
         }
 
         async function updateTemplates() {
-            const status = document.getElementById('updateStatus');
-            status.textContent = '正在同步模板...';
-            try {
-                const response = await fetch('/admin?action=update-templates', {
-                    method: 'POST',
-                    credentials: 'include'
-                });
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.error || '同步失败');
-                document.getElementById('localVersion').textContent = data.localVersion;
-                document.getElementById('remoteVersion').textContent = data.remoteVersion;
-                document.getElementById('versionStatus').textContent = data.statusLabel;
-                document.getElementById('updateNotice').innerHTML = '<div class="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm leading-6 text-emerald-800">模板已同步到最新版本。</div>';
-                status.textContent = '更新完成。';
-                setTimeout(() => location.reload(), 800);
-            } catch (error) {
-                status.textContent = error.message || '同步失败，请稍后重试。';
-            }
+            await syncTemplates('/admin?action=update-templates', '更新完成。');
         }
 
         async function refreshTemplates() {
+            await syncTemplates('/admin?action=refresh-templates', '重新拉取完成。');
+        }
+
+        async function syncTemplates(url, successText) {
             const status = document.getElementById('updateStatus');
-            status.textContent = '正在从 GitHub 重新拉取全部模板...';
-            try {
-                const response = await fetch('/admin?action=refresh-templates', {
-                    method: 'POST',
-                    credentials: 'include'
-                });
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.error || '重新拉取失败');
-                document.getElementById('localVersion').textContent = data.localVersion;
-                document.getElementById('remoteVersion').textContent = data.remoteVersion;
-                document.getElementById('versionStatus').textContent = data.statusLabel;
-                document.getElementById('updateNotice').innerHTML = '<div class="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm leading-6 text-emerald-800">已无条件重新拉取并覆盖系统模板。</div>';
-                status.textContent = '重新拉取完成，正在刷新后台。';
-                setTimeout(() => location.reload(), 800);
-            } catch (error) {
-                status.textContent = error.message || '重新拉取失败，请稍后重试。';
+            status.textContent = '正在同步模板...';
+            const response = await fetch(url, { method: 'POST', credentials: 'include' });
+            const data = await response.json();
+            if (!response.ok) {
+                status.textContent = data.error || '同步失败。';
+                return;
             }
+            document.getElementById('localVersion').textContent = data.localVersion;
+            document.getElementById('remoteVersion').textContent = data.remoteVersion;
+            document.getElementById('versionStatus').textContent = data.statusLabel;
+            status.textContent = successText;
+            setTimeout(() => location.reload(), 800);
         }
     </script>
 </body>

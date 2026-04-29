@@ -3,36 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML 编辑器</title>
+    <title>页面编辑器</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ace.js"></script>
-    <style>
-        #editor { min-height: 58vh; width: 100%; font-size: 14px; line-height: 1.65; }
-    </style>
+    <style>#editor { min-height: 62vh; width: 100%; font-size: 14px; line-height: 1.65; }</style>
 </head>
-<body class="min-h-screen bg-[radial-gradient(circle_at_16%_0%,#dff7f2,transparent_28%),linear-gradient(135deg,#f8fafc,#f3f7f5_52%,#f7fbff)] text-slate-950 antialiased">
-    <main class="mx-auto w-full max-w-7xl px-4 py-6 sm:px-8 sm:py-8">
-        <header class="mb-6 flex flex-col gap-4 rounded-[2rem] border border-white/70 bg-white/70 p-5 shadow-[0_20px_70px_rgba(15,23,42,0.10)] backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between">
+<body class="min-h-screen bg-slate-50 text-slate-950 antialiased">
+    <main class="mx-auto w-full max-w-7xl px-4 py-6 sm:px-8">
+        <header class="mb-6 flex flex-col gap-4 border-b border-slate-200 pb-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <p class="text-sm font-medium text-emerald-700">HTML Page</p>
-                <h1 class="mt-1 text-2xl font-semibold sm:text-3xl">HTML 编辑器</h1>
-                <p class="mt-2 text-sm text-slate-500">保存后会生成或更新一个 `html:` 页面。</p>
+                <p class="text-sm font-medium text-emerald-700">Page</p>
+                <h1 class="mt-1 text-2xl font-semibold sm:text-3xl">页面编辑器</h1>
             </div>
             <div class="flex flex-col gap-3 sm:flex-row">
-                <a href="/admin" class="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white/80 px-5 text-sm font-medium text-slate-900 shadow-sm transition hover:bg-white">返回后台</a>
-                <button onclick="save()" class="inline-flex h-11 items-center justify-center rounded-2xl bg-slate-950 px-5 text-sm font-medium text-white shadow-lg shadow-slate-900/15 transition hover:-translate-y-0.5 hover:bg-slate-800">保存并预览</button>
+                <a href="/admin" class="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-medium text-slate-900 shadow-sm">返回后台</a>
+                <button onclick="save(false)" class="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-medium text-slate-900 shadow-sm">保存</button>
+                <button onclick="save(true)" class="inline-flex h-11 items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-medium text-white shadow-sm">保存并预览</button>
             </div>
         </header>
 
-        <section class="overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white/80 shadow-[0_20px_70px_rgba(15,23,42,0.10)] backdrop-blur-xl">
-            <div id="editor">{{htmlCode}}</div>
-        </section>
-
-        <p id="status" class="mt-4 min-h-6 text-sm text-slate-500"></p>
+        <form id="pageForm" class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
+            <input type="hidden" id="id" name="id" value="{{id}}">
+            <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div id="editor">{{htmlCode}}</div>
+            </section>
+            <aside class="h-fit rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <h2 class="text-base font-semibold">页面信息</h2>
+                <label class="mt-4 block">
+                    <span class="mb-2 block text-sm font-medium text-slate-700">标题</span>
+                    <input type="text" id="title" name="title" value="{{pageTitle}}" class="h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400">
+                </label>
+                <label class="mt-4 block">
+                    <span class="mb-2 block text-sm font-medium text-slate-700">slug</span>
+                    <input type="text" id="slug" name="slug" value="{{slug}}" class="h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400">
+                </label>
+                <label class="mt-4 block">
+                    <span class="mb-2 block text-sm font-medium text-slate-700">状态</span>
+                    <select name="status" class="h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400">
+                        <option value="draft" {{statusDraftSelected}}>草稿</option>
+                        <option value="published" {{statusPublishedSelected}}>发布</option>
+                        <option value="archived" {{statusArchivedSelected}}>下线</option>
+                    </select>
+                </label>
+                <label class="mt-4 block">
+                    <span class="mb-2 block text-sm font-medium text-slate-700">模板</span>
+                    <select name="template" class="h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400">
+                        <option value="default" {{templateDefaultSelected}}>默认页面模板</option>
+                        <option value="blank" {{templateBlankSelected}}>纯 HTML</option>
+                    </select>
+                </label>
+                <label class="mt-4 flex items-center gap-2 text-sm text-slate-700">
+                    <input type="checkbox" name="showInNav" {{navChecked}} class="h-4 w-4 rounded border-slate-300">
+                    作为导航入口
+                </label>
+                <label class="mt-4 block">
+                    <span class="mb-2 block text-sm font-medium text-slate-700">页面描述</span>
+                    <textarea name="description" rows="4" class="w-full resize-y rounded-xl border border-slate-200 px-3 py-2 text-sm leading-6 outline-none focus:border-slate-400">{{description}}</textarea>
+                </label>
+                <p id="status" class="mt-5 min-h-6 text-sm text-slate-500"></p>
+            </aside>
+        </form>
     </main>
 
     <script>
-        const pageId = "{{id}}";
+        let pageId = "{{id}}";
         const editor = ace.edit("editor");
         editor.setTheme("ace/theme/github");
         editor.session.setMode("ace/mode/html");
@@ -40,22 +74,33 @@
         editor.setOption("highlightActiveLine", true);
         editor.setOption("wrap", true);
 
-        async function save() {
+        const title = document.getElementById('title');
+        const slug = document.getElementById('slug');
+        let slugTouched = Boolean(slug.value);
+        function slugify(value) {
+            return value.trim().toLowerCase().replace(/[\s_]+/g, '-').replace(/[^\p{L}\p{N}-]+/gu, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+        }
+        slug.addEventListener('input', () => slugTouched = true);
+        title.addEventListener('input', () => {
+            if (!slugTouched) slug.value = slugify(title.value);
+        });
+
+        async function save(openPreview) {
             const status = document.getElementById('status');
             status.textContent = '正在保存...';
-            const form = new FormData();
+            const form = new FormData(document.getElementById('pageForm'));
             form.append('htmlCode', editor.getValue());
-            form.append('id', pageId);
-
-            try {
-                const response = await fetch('/editor', { method: 'POST', body: form, credentials: 'include' });
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.error || '保存失败');
-                status.textContent = '已保存，正在打开预览。';
-                window.open('/view?id=' + encodeURIComponent(data.id), '_blank');
-            } catch (error) {
-                status.textContent = error.message || '保存失败，请稍后重试。';
+            form.set('id', pageId);
+            const response = await fetch('/editor', { method: 'POST', body: form, credentials: 'include' });
+            const data = await response.json();
+            if (!response.ok) {
+                status.textContent = data.error || '保存失败。';
+                return;
             }
+            pageId = data.id;
+            document.getElementById('id').value = data.id;
+            status.textContent = '已保存。';
+            if (openPreview) window.open('/view?id=' + encodeURIComponent(data.id), '_blank');
         }
     </script>
 </body>
