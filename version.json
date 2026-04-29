@@ -1,0 +1,50 @@
+{
+  "version": "1.1.0",
+  "baseUrl": "https://raw.githubusercontent.com/tyj9713/cloudflare-cms/main",
+  "templates": [
+    {
+      "key": "html:editor",
+      "path": "templates/editor.html"
+    },
+    {
+      "key": "html:unauthorized",
+      "path": "templates/unauthorized.html"
+    },
+    {
+      "key": "html:login",
+      "path": "templates/login.html"
+    },
+    {
+      "key": "html:homepage-selection",
+      "path": "templates/homepage-selection.html"
+    },
+    {
+      "key": "html:custom-page",
+      "path": "templates/custom-page.html"
+    },
+    {
+      "key": "html:admin",
+      "path": "templates/admin.html"
+    },
+    {
+      "key": "html:article-list",
+      "path": "templates/article-list.html"
+    },
+    {
+      "key": "html:article-editor",
+      "path": "templates/article-editor.html"
+    },
+    {
+      "key": "html:article-view",
+      "path": "templates/article-view.html"
+    },
+    {
+      "key": "html:upload",
+      "path": "templates/upload.html"
+    },
+    {
+      "key": "html:file-list",
+      "path": "templates/file-list.html"
+    }
+  ]
+}
