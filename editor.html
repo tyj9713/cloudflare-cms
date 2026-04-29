@@ -1,44 +1,62 @@
 <!DOCTYPE html>
-    <html lang="zh-CN">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>HTML 编辑器</title>
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ace.js"></script>
-        <style>
-            #editor {
-                height: 50vh;
-                width: 100%;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container mt-5">
-            <h1>HTML 编辑器</h1>
-            <div id="editor">${htmlCode || ''}</div>
-            <button onclick="save()" class="btn btn-primary mt-3">保存并预览</button>
-        </div>
-        <iframe id="preview" src="" style="border:none;width:100%;height:50vh;"></iframe>
-        <script>
-            var editor = ace.edit("editor");
-            editor.setTheme("ace/theme/github");
-            editor.session.setMode("ace/mode/html");
-            editor.setOption("showLineNumbers", true);
-            editor.setOption("highlightActiveLine", true);
-    
-            async function save() {
-                const htmlCode = editor.getValue();
-                const form = new FormData();
-                form.append('htmlCode', htmlCode);
-                form.append('id', '${id || ''}');
-                const response = await fetch('/editor', {
-                    method: 'POST',
-                    body: form
-                });
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML 编辑器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ace.js"></script>
+    <style>
+        #editor { min-height: 58vh; width: 100%; font-size: 14px; line-height: 1.65; }
+    </style>
+</head>
+<body class="min-h-screen bg-[radial-gradient(circle_at_16%_0%,#dff7f2,transparent_28%),linear-gradient(135deg,#f8fafc,#f3f7f5_52%,#f7fbff)] text-slate-950 antialiased">
+    <main class="mx-auto w-full max-w-7xl px-4 py-6 sm:px-8 sm:py-8">
+        <header class="mb-6 flex flex-col gap-4 rounded-[2rem] border border-white/70 bg-white/70 p-5 shadow-[0_20px_70px_rgba(15,23,42,0.10)] backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm font-medium text-emerald-700">HTML Page</p>
+                <h1 class="mt-1 text-2xl font-semibold sm:text-3xl">HTML 编辑器</h1>
+                <p class="mt-2 text-sm text-slate-500">保存后会生成或更新一个 `html:` 页面。</p>
+            </div>
+            <div class="flex flex-col gap-3 sm:flex-row">
+                <a href="/admin" class="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white/80 px-5 text-sm font-medium text-slate-900 shadow-sm transition hover:bg-white">返回后台</a>
+                <button onclick="save()" class="inline-flex h-11 items-center justify-center rounded-2xl bg-slate-950 px-5 text-sm font-medium text-white shadow-lg shadow-slate-900/15 transition hover:-translate-y-0.5 hover:bg-slate-800">保存并预览</button>
+            </div>
+        </header>
+
+        <section class="overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white/80 shadow-[0_20px_70px_rgba(15,23,42,0.10)] backdrop-blur-xl">
+            <div id="editor">{{htmlCode}}</div>
+        </section>
+
+        <p id="status" class="mt-4 min-h-6 text-sm text-slate-500"></p>
+    </main>
+
+    <script>
+        const pageId = "{{id}}";
+        const editor = ace.edit("editor");
+        editor.setTheme("ace/theme/github");
+        editor.session.setMode("ace/mode/html");
+        editor.setOption("showLineNumbers", true);
+        editor.setOption("highlightActiveLine", true);
+        editor.setOption("wrap", true);
+
+        async function save() {
+            const status = document.getElementById('status');
+            status.textContent = '正在保存...';
+            const form = new FormData();
+            form.append('htmlCode', editor.getValue());
+            form.append('id', pageId);
+
+            try {
+                const response = await fetch('/editor', { method: 'POST', body: form, credentials: 'include' });
                 const data = await response.json();
-                window.open('/view?id=' + data.id, '_blank');
+                if (!response.ok) throw new Error(data.error || '保存失败');
+                status.textContent = '已保存，正在打开预览。';
+                window.open('/view?id=' + encodeURIComponent(data.id), '_blank');
+            } catch (error) {
+                status.textContent = error.message || '保存失败，请稍后重试。';
             }
-        </script>
-    </body>
-    </html>
+        }
+    </script>
+</body>
+</html>

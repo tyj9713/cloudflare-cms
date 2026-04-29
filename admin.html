@@ -3,109 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>后台管理</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
-        .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 600px; }
-        .closebtn { color: #aaa; float: right; font-size: 28px; font-weight: bold; }
-        .closebtn:hover, .closebtn:focus { color: black; text-decoration: none; cursor: pointer; }
-    </style>
+    <title>后台管理 - Netcut CMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">后台管理</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/editor">新建 HTML 页面</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/article-editor">新建文章</a>
-                    </li>
-                </ul>
+<body class="min-h-screen bg-[radial-gradient(circle_at_10%_0%,#dff7f2,transparent_28%),radial-gradient(circle_at_88%_8%,#e6f4ff,transparent_26%),linear-gradient(135deg,#f8fafc,#f3f7f5_52%,#f8fbff)] text-slate-950 antialiased">
+    <div class="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-5 sm:px-8 sm:py-8">
+        <header class="rounded-[2rem] border border-white/70 bg-white/70 p-5 shadow-[0_20px_70px_rgba(15,23,42,0.10)] backdrop-blur-xl">
+            <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                    <p class="text-sm font-medium text-emerald-700">Netcut CMS</p>
+                    <h1 class="mt-2 text-3xl font-semibold sm:text-4xl">后台管理</h1>
+                    <p class="mt-3 max-w-2xl text-sm leading-6 text-slate-500">管理页面、文章、文件与首页入口。当前首页：<span class="font-medium text-slate-800">{{currentHome}}</span></p>
+                </div>
+                <nav class="grid gap-3 sm:grid-cols-3 lg:w-auto">
+                    <a href="/editor" class="inline-flex h-11 items-center justify-center rounded-2xl bg-slate-950 px-5 text-sm font-medium text-white shadow-lg shadow-slate-900/15 transition hover:-translate-y-0.5 hover:bg-slate-800">新建页面</a>
+                    <a href="/article-editor" class="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white/80 px-5 text-sm font-medium text-slate-900 shadow-sm transition hover:bg-white">新建文章</a>
+                    <a href="/upload" class="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white/80 px-5 text-sm font-medium text-slate-900 shadow-sm transition hover:bg-white">上传文件</a>
+                </nav>
             </div>
-        </div>
-    </nav>
+        </header>
 
-    <div class="container mt-4">
-        <h2>HTML 页面管理</h2>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>操作</th>
-                    <th colspan="2">管理</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${htmlRows}
-            </tbody>
-        </table>
+        <section class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
+            <div class="space-y-6">
+                <section class="overflow-hidden rounded-[2rem] border border-white/70 bg-white/76 shadow-[0_20px_70px_rgba(15,23,42,0.10)] backdrop-blur-xl">
+                    <div class="border-b border-slate-100 px-5 py-4">
+                        <h2 class="text-lg font-semibold">HTML 页面</h2>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full min-w-[640px] text-left text-sm">
+                            <thead class="bg-slate-50/80 text-xs font-medium uppercase text-slate-500">
+                                <tr>
+                                    <th class="px-4 py-3">ID</th>
+                                    <th class="px-4 py-3">查看</th>
+                                    <th class="px-4 py-3">编辑</th>
+                                    <th class="px-4 py-3 text-right">管理</th>
+                                </tr>
+                            </thead>
+                            <tbody>{{htmlRows}}</tbody>
+                        </table>
+                    </div>
+                </section>
 
-        <h2>文章管理</h2>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>标题</th>
-                    <th>操作</th>
-                    <th colspan="2">管理</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${articleRows}
-            </tbody>
-        </table>
+                <section class="overflow-hidden rounded-[2rem] border border-white/70 bg-white/76 shadow-[0_20px_70px_rgba(15,23,42,0.10)] backdrop-blur-xl">
+                    <div class="border-b border-slate-100 px-5 py-4">
+                        <h2 class="text-lg font-semibold">文章</h2>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full min-w-[640px] text-left text-sm">
+                            <thead class="bg-slate-50/80 text-xs font-medium uppercase text-slate-500">
+                                <tr>
+                                    <th class="px-4 py-3">标题</th>
+                                    <th class="px-4 py-3">查看</th>
+                                    <th class="px-4 py-3">编辑</th>
+                                    <th class="px-4 py-3 text-right">管理</th>
+                                </tr>
+                            </thead>
+                            <tbody>{{articleRows}}</tbody>
+                        </table>
+                    </div>
+                </section>
 
-        <h2>文件管理</h2>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>文件名</th>
-                    <th>MIME 类型</th>
-                    <th>操作</th>
-                    <th>管理</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${fileRows}
-            </tbody>
-        </table>
-
-        <h2>设置首页</h2>
-        <form id="setHomeForm">
-            <div class="mb-3">
-                <label for="homeId" class="form-label">选择首页ID:</label>
-                <select id="homeId" name="homeId" class="form-select">
-                    <option value="custom-html">自定义 HTML 页面</option>
-                    <option value="article-list">文章列表</option>
-                    <option value="file-list">文件列表</option>
-                    ${htmlPages.map(key => `<option value="${key.name}">${key.name.replace(/^(article|html):/, '')}</option>`).join('')}
-                </select>
+                <section class="overflow-hidden rounded-[2rem] border border-white/70 bg-white/76 shadow-[0_20px_70px_rgba(15,23,42,0.10)] backdrop-blur-xl">
+                    <div class="border-b border-slate-100 px-5 py-4">
+                        <h2 class="text-lg font-semibold">文件</h2>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full min-w-[720px] text-left text-sm">
+                            <thead class="bg-slate-50/80 text-xs font-medium uppercase text-slate-500">
+                                <tr>
+                                    <th class="px-4 py-3">文件名</th>
+                                    <th class="px-4 py-3">MIME 类型</th>
+                                    <th class="px-4 py-3">下载</th>
+                                    <th class="px-4 py-3 text-right">管理</th>
+                                </tr>
+                            </thead>
+                            <tbody>{{fileRows}}</tbody>
+                        </table>
+                    </div>
+                </section>
             </div>
-            <button type="button" onclick="setHomepage()" class="btn btn-success">设置为首页</button>
-        </form>
+
+            <aside class="h-fit rounded-[2rem] border border-white/70 bg-white/76 p-5 shadow-[0_20px_70px_rgba(15,23,42,0.10)] backdrop-blur-xl">
+                <h2 class="text-lg font-semibold">首页设置</h2>
+                <p class="mt-2 text-sm leading-6 text-slate-500">选择一个公开入口作为站点首页。</p>
+                <form id="setHomeForm" class="mt-5 space-y-4">
+                    <label class="block">
+                        <span class="mb-2 block text-sm font-medium text-slate-700">首页</span>
+                        <select id="homeId" name="homeId" class="h-12 w-full rounded-2xl border border-slate-200 bg-white/85 px-4 text-sm text-slate-950 outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-200">
+                            {{homeOptions}}
+                        </select>
+                    </label>
+                    <button type="button" onclick="setHomepage()" class="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-slate-950 px-5 text-sm font-medium text-white shadow-lg shadow-slate-900/15 transition hover:-translate-y-0.5 hover:bg-slate-800">保存首页</button>
+                    <p id="homeStatus" class="min-h-6 text-sm text-slate-500"></p>
+                </form>
+            </aside>
+        </section>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
     <script>
         async function remove(id) {
-            if (confirm('确定要删除吗？')) {
-                const response = await fetch('/admin?id=' + id, { 
-                    method: 'DELETE',
-                    credentials: 'include'
-                });
-                if (response.ok) {
-                    location.reload();
-                }
+            if (!confirm('确定要删除吗？')) return;
+            const status = document.getElementById('homeStatus');
+            const response = await fetch('/admin?id=' + encodeURIComponent(id), {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+            if (response.ok) {
+                location.reload();
+            } else {
+                status.textContent = '删除失败，请稍后重试。';
             }
         }
 
         async function setHomepage() {
+            const status = document.getElementById('homeStatus');
+            status.textContent = '正在保存...';
             const form = document.getElementById('setHomeForm');
             const formData = new FormData(form);
             const response = await fetch('/admin', {
@@ -113,16 +125,8 @@
                 body: formData,
                 credentials: 'include'
             });
-            if (response.ok) {
-                alert('首页设置成功');
-            }
+            status.textContent = response.ok ? '首页设置成功。' : '首页设置失败。';
         }
     </script>
 </body>
 </html>
-
-
-
-
-
-

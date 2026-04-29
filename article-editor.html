@@ -3,39 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>新建/编辑文章</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+    <title>{{modeTitle}}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="container mt-5">
-        <h1>${id ? '编辑' : '新建'}文章</h1>
-        <form id="articleForm">
-            <input type="hidden" id="id" name="id" value="${id || ''}">
-            <div class="mb-3">
-                <label for="title" class="form-label">标题:</label>
-                <input type="text" class="form-control" id="title" name="title" value="${articleData.title || ''}" required>
+<body class="min-h-screen bg-[radial-gradient(circle_at_12%_0%,#dff7f2,transparent_30%),linear-gradient(135deg,#f8fafc,#f2f7f5_52%,#f8fbff)] text-slate-950 antialiased">
+    <main class="mx-auto w-full max-w-6xl px-4 py-6 sm:px-8 sm:py-8">
+        <header class="mb-6 flex flex-col gap-4 rounded-[2rem] border border-white/70 bg-white/70 p-5 shadow-[0_20px_70px_rgba(15,23,42,0.10)] backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm font-medium text-emerald-700">Article</p>
+                <h1 class="mt-1 text-2xl font-semibold sm:text-3xl">{{modeTitle}}</h1>
+                <p class="mt-2 text-sm text-slate-500">支持 Markdown 内容，保存后会打开阅读预览。</p>
             </div>
-            <div class="mb-3">
-                <label for="summary" class="form-label">摘要:</label>
-                <textarea id="summary" name="summary" rows="4" class="form-control" required>${articleData.summary || ''}</textarea>
+            <div class="flex flex-col gap-3 sm:flex-row">
+                <a href="/admin" class="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white/80 px-5 text-sm font-medium text-slate-900 shadow-sm transition hover:bg-white">返回后台</a>
+                <button type="button" onclick="saveArticle()" class="inline-flex h-11 items-center justify-center rounded-2xl bg-slate-950 px-5 text-sm font-medium text-white shadow-lg shadow-slate-900/15 transition hover:-translate-y-0.5 hover:bg-slate-800">保存并预览</button>
             </div>
-            <div class="mb-3">
-                <label for="content" class="form-label">内容:</label>
-                <textarea id="content" name="content" rows="10" class="form-control" required>${articleData.content || ''}</textarea>
-            </div>
-            <button type="button" onclick="saveArticle()" class="btn btn-primary">保存并预览</button>
+        </header>
+
+        <form id="articleForm" class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
+            <input type="hidden" id="id" name="id" value="{{id}}">
+            <section class="rounded-[2rem] border border-slate-200/80 bg-white/78 p-5 shadow-[0_20px_70px_rgba(15,23,42,0.10)] backdrop-blur-xl">
+                <label class="block">
+                    <span class="mb-2 block text-sm font-medium text-slate-700">标题</span>
+                    <input type="text" id="title" name="title" value="{{title}}" required
+                        class="h-12 w-full rounded-2xl border border-slate-200 bg-white/85 px-4 text-base text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-4 focus:ring-slate-200">
+                </label>
+                <label class="mt-5 block">
+                    <span class="mb-2 block text-sm font-medium text-slate-700">摘要</span>
+                    <textarea id="summary" name="summary" rows="4" required
+                        class="w-full resize-y rounded-2xl border border-slate-200 bg-white/85 px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-4 focus:ring-slate-200">{{summary}}</textarea>
+                </label>
+                <label class="mt-5 block">
+                    <span class="mb-2 block text-sm font-medium text-slate-700">正文</span>
+                    <textarea id="content" name="content" rows="18" required
+                        class="w-full resize-y rounded-2xl border border-slate-200 bg-white/85 px-4 py-3 font-mono text-sm leading-6 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-4 focus:ring-slate-200">{{content}}</textarea>
+                </label>
+            </section>
+
+            <aside class="rounded-[2rem] border border-slate-200/80 bg-white/70 p-5 shadow-sm backdrop-blur-xl">
+                <h2 class="text-base font-semibold">发布信息</h2>
+                <dl class="mt-4 space-y-4 text-sm">
+                    <div>
+                        <dt class="text-slate-500">内容 ID</dt>
+                        <dd class="mt-1 break-all rounded-2xl bg-slate-50 px-3 py-2 font-mono text-xs text-slate-700">{{id}}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-slate-500">格式</dt>
+                        <dd class="mt-1 text-slate-800">Markdown</dd>
+                    </div>
+                </dl>
+                <p id="status" class="mt-6 min-h-6 text-sm text-slate-500"></p>
+            </aside>
         </form>
-    </div>
+    </main>
     <script>
         async function saveArticle() {
+            const status = document.getElementById('status');
+            status.textContent = '正在保存...';
             const form = document.getElementById('articleForm');
             const formData = new FormData(form);
-            const response = await fetch('/article-editor', {
-                method: 'POST',
-                body: formData
-            });
-            const data = await response.json();
-            window.open('/view?id=' + data.id, '_blank');
+
+            try {
+                const response = await fetch('/article-editor', { method: 'POST', body: formData, credentials: 'include' });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || '保存失败');
+                status.textContent = '已保存，正在打开预览。';
+                window.open('/article-view?id=' + encodeURIComponent(data.id), '_blank');
+            } catch (error) {
+                status.textContent = error.message || '保存失败，请稍后重试。';
+            }
         }
     </script>
 </body>

@@ -3,28 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>登录</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+    <title>登录 - Netcut CMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header"><h4>登录</h4></div>
-                    <div class="card-body">
-                        {{errorMessage}}
-                        <form action="/login" method="POST">
-                            <div class="mb-3">
-                                <label for="password" class="form-label">管理员密码</label>
-                                <input type="password" class="form-control" id="password" name="password" placeholder="请输入管理员密码" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary w-100">登录</button>
-                        </form>
-                    </div>
+<body class="min-h-screen bg-[radial-gradient(circle_at_top_left,#dff7f2,transparent_34%),linear-gradient(135deg,#f8fafc,#eef6f4_48%,#f7fbff)] text-slate-950 antialiased">
+    <main class="grid min-h-screen place-items-center px-5 py-10">
+        <section class="w-full max-w-md rounded-[2rem] border border-white/70 bg-white/72 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.12)] backdrop-blur-xl sm:p-8">
+            <div class="mb-8">
+                <div class="mb-5 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-950 text-white shadow-lg shadow-slate-900/20">
+                    <span class="text-sm font-semibold">N</span>
                 </div>
+                <h1 class="text-2xl font-semibold text-slate-950">管理后台登录</h1>
+                <p class="mt-2 text-sm leading-6 text-slate-500">输入管理员密码后继续管理内容、文件和首页。</p>
             </div>
-        </div>
-    </div>
+
+            <div class="mb-5">{{errorMessage}}</div>
+
+            <form action="/login" method="POST" class="space-y-5">
+                <label class="block">
+                    <span class="mb-2 block text-sm font-medium text-slate-700">管理员密码</span>
+                    <input type="password" id="password" name="password" placeholder="请输入管理员密码" required
+                        class="h-12 w-full rounded-2xl border border-slate-200 bg-white/85 px-4 text-base text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-4 focus:ring-slate-200">
+                </label>
+                <button type="submit" class="inline-flex h-12 w-full items-center justify-center rounded-2xl bg-slate-950 px-5 text-sm font-medium text-white shadow-lg shadow-slate-900/15 transition hover:-translate-y-0.5 hover:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-slate-300">
+                    登录
+                </button>
+            </form>
+        </section>
+    </main>
 </body>
 </html>

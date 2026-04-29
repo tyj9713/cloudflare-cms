@@ -4,17 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>选择首页</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="container mt-5 text-center">
-        <h1>选择首页</h1>
-        <p>请选择一个页面作为默认首页：</p>
-        <div class="mt-4">
-            <a href="/?homeId=custom-html" class="btn btn-primary me-2">自定义 HTML 页面</a>
-            <a href="/?homeId=article-list" class="btn btn-secondary me-2">文章列表</a>
-            <a href="/?homeId=file-list" class="btn btn-info">文件列表</a>
-        </div>
-    </div>
+<body class="min-h-screen bg-[radial-gradient(circle_at_top,#dff7f2,transparent_32%),linear-gradient(135deg,#f8fafc,#f3f7f5)] text-slate-950 antialiased">
+    <main class="grid min-h-screen place-items-center px-5 py-10">
+        <section class="w-full max-w-xl rounded-[2rem] border border-white/70 bg-white/76 p-8 text-center shadow-[0_24px_80px_rgba(15,23,42,0.12)] backdrop-blur-xl">
+            <p class="text-sm font-medium text-emerald-700">Setup</p>
+            <h1 class="mt-2 text-3xl font-semibold">尚未设置首页</h1>
+            <p class="mx-auto mt-3 max-w-md text-sm leading-6 text-slate-500">请登录后台，在首页设置中选择文章列表、文件列表或一个自定义 HTML 页面。</p>
+            <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+                <a href="/login" class="inline-flex h-11 items-center justify-center rounded-2xl bg-slate-950 px-6 text-sm font-medium text-white shadow-lg shadow-slate-900/15 transition hover:-translate-y-0.5 hover:bg-slate-800">进入后台</a>
+                <a href="/articles" class="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white/80 px-6 text-sm font-medium text-slate-900 shadow-sm transition hover:bg-white">查看文章</a>
+            </div>
+        </section>
+    </main>
 </body>
 </html>
