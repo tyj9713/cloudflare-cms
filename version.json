@@ -1,5 +1,5 @@
 {
-  "version": "1.5.0",
+  "version": "1.6.0",
   "baseUrl": "https://raw.githubusercontent.com/tyj9713/cloudflare-cms/main",
   "templates": [
     {
@@ -25,6 +25,22 @@
     {
       "key": "html:admin",
       "path": "templates/admin.html"
+    },
+    {
+      "key": "html:admin-dashboard",
+      "path": "templates/admin-dashboard.html"
+    },
+    {
+      "key": "html:admin-content",
+      "path": "templates/admin-content.html"
+    },
+    {
+      "key": "html:admin-settings",
+      "path": "templates/admin-settings.html"
+    },
+    {
+      "key": "html:admin-system",
+      "path": "templates/admin-system.html"
     },
     {
       "key": "html:article-list",

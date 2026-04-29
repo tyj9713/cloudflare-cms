@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{pageTitle}} - Netcut CMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-950 antialiased">
+    <div class="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-5 sm:px-8">
+        <header class="flex flex-col gap-4 border-b border-slate-200 pb-5 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+                <a href="/admin" class="text-sm font-medium text-emerald-700">Netcut CMS</a>
+                <h1 class="mt-2 text-3xl font-semibold">内容管理</h1>
+                <p class="mt-2 text-sm text-slate-500">{{contentSummary}}</p>
+            </div>
+            <nav class="flex flex-wrap gap-3">
+                <a href="/admin/settings" class="inline-flex h-10 items-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium">站点设置</a>
+                <a href="/admin/system" class="inline-flex h-10 items-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium">系统状态</a>
+                <a href="/article-editor" class="inline-flex h-10 items-center rounded-xl bg-slate-950 px-4 text-sm font-medium text-white">新建文章</a>
+            </nav>
+        </header>
+
+        <section class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+            <div class="grid gap-4 border-b border-slate-100 px-5 py-4">
+                <form method="GET" action="/admin/content" class="grid gap-3 md:grid-cols-[minmax(0,1fr)_140px_140px_160px_auto]">
+                    <input id="contentSearch" name="q" value="{{contentSearchQuery}}" type="search" placeholder="搜索内容、类型或 ID" class="h-10 rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400">
+                    <select name="type" class="h-10 rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400">
+                        <option value="" {{contentTypeAllSelected}}>全部类型</option>
+                        <option value="article" {{contentTypeArticleSelected}}>文章</option>
+                        <option value="page" {{contentTypePageSelected}}>页面</option>
+                        <option value="file" {{contentTypeFileSelected}}>文件</option>
+                    </select>
+                    <select name="status" class="h-10 rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400">
+                        <option value="" {{contentStatusAllSelected}}>全部状态</option>
+                        <option value="draft" {{contentStatusDraftSelected}}>草稿</option>
+                        <option value="published" {{contentStatusPublishedSelected}}>已发布</option>
+                        <option value="archived" {{contentStatusArchivedSelected}}>已下线</option>
+                    </select>
+                    <select name="sort" class="h-10 rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400">
+                        <option value="updated_desc" {{contentSortUpdatedDescSelected}}>更新时间从新到旧</option>
+                        <option value="updated_asc" {{contentSortUpdatedAscSelected}}>更新时间从旧到新</option>
+                        <option value="title_asc" {{contentSortTitleAscSelected}}>标题 A-Z</option>
+                    </select>
+                    <button type="submit" class="h-10 rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium">筛选</button>
+                </form>
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="flex gap-3">
+                        <select id="bulkAction" class="h-10 rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400">
+                            <option value="publish">批量发布</option>
+                            <option value="archive">批量下线</option>
+                            <option value="delete">批量删除</option>
+                        </select>
+                        <button type="button" onclick="bulkApply()" class="h-10 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white">执行</button>
+                    </div>
+                    <p id="contentStatus" class="min-h-6 text-sm text-slate-500"></p>
+                </div>
+            </div>
+            <form id="contentForm" class="overflow-x-auto">
+                <table class="w-full min-w-[900px] text-left text-sm">
+                    <thead class="bg-slate-50 text-xs font-medium uppercase text-slate-500">
+                        <tr>
+                            <th class="w-10 px-4 py-3"><input type="checkbox" onclick="toggleAll(this)" class="h-4 w-4 rounded border-slate-300"></th>
+                            <th class="px-4 py-3">类型</th>
+                            <th class="px-4 py-3">标题</th>
+                            <th class="px-4 py-3">状态</th>
+                            <th class="px-4 py-3">更新时间</th>
+                            <th class="px-4 py-3">链接</th>
+                            <th class="px-4 py-3 text-right">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>{{contentRows}}</tbody>
+                </table>
+            </form>
+        </section>
+    </div>
+    <script>
+        function toggleAll(source) {
+            document.querySelectorAll('#contentForm input[name="ids"]').forEach(input => input.checked = source.checked);
+        }
+        async function bulkApply() {
+            const status = document.getElementById('contentStatus');
+            const form = new FormData(document.getElementById('contentForm'));
+            form.append('bulkAction', document.getElementById('bulkAction').value);
+            if (!form.getAll('ids').length) {
+                status.textContent = '请选择内容。';
+                return;
+            }
+            if (form.get('bulkAction') === 'delete' && !confirm('确定要批量删除选中内容吗？')) return;
+            const actionText = { publish: '发布', archive: '下线', delete: '删除' }[form.get('bulkAction')] || '处理';
+            status.textContent = '正在' + actionText + '...';
+            const response = await fetch('/admin?action=bulk', { method: 'POST', body: form, credentials: 'include' });
+            const data = await response.json();
+            status.textContent = response.ok ? '已' + actionText + ' ' + (data.count || form.getAll('ids').length) + ' 项内容。' : (data.error || '操作失败。');
+            if (response.ok) setTimeout(() => location.reload(), 900);
+        }
+        async function copyLink(url) {
+            await navigator.clipboard.writeText(new URL(url, location.origin).href);
+            document.getElementById('contentStatus').textContent = '链接已复制。';
+        }
+        async function remove(id) {
+            if (!confirm('确定要删除吗？')) return;
+            const response = await fetch('/admin?id=' + encodeURIComponent(id), { method: 'DELETE', credentials: 'include' });
+            document.getElementById('contentStatus').textContent = response.ok ? '已删除，正在刷新...' : '删除失败。';
+            if (response.ok) setTimeout(() => location.reload(), 500);
+        }
+    </script>
+</body>
+</html>
